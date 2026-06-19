@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>فرزین | اکسسوری با قصه</title>
+<meta name="description" content="فرزین — برندی برای اکسسوری که فقط زینت نیست؛ هر قطعه بخشی از یک قصه است.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --charcoal-950:#0b0a08;
+    --charcoal-900:#15130f;
+    --charcoal-850:#1b1812;
+    --charcoal-800:#221f18;
+    --gold-soft:#c9a467;
+    --gold-bright:#e8cd8c;
+    --gold-deep:#8c6f3e;
+    --cream:#efe8d9;
+    --cream-dim:#b4ac9c;
+    --font-display:'Vazirmatn', sans-serif;
+    --font-body:'Vazirmatn', sans-serif;
+  }
+
+  .chapter h2.text3d {
+    font-size: clamp(1.4rem, 2.5vw, 1.9rem) !important;
+    white-space: normal !important; 
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important; 
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    text-wrap: balance !important;
+    transform-style: preserve-3d;
+  }
+
+  /* Force the individual 3D letters/layers to break identically */
+  .chapter h2.text3d .layer {
+    position: absolute !important;
+    inset: 0 !important;
+    white-space: normal !important; /* Overrides the nowrap breaking layout */
+    width: 100% !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* Make sure the front interactive layer dictates the true height of the block */
+  .chapter h2.text3d .layer.front {
+    position: relative !important;
+  }
+
+  /* Revert Card back to standard responsive widths */
+  .chapter-card {
+     max-width: 440px !important;
+     width: 100% !important;
+     flex-direction: column;
+     display: flex;
+     direction: rtl;
+     text-align: right;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; min-height:100%; }
+  html{ scroll-behavior:smooth; background:var(--charcoal-950); }
+  body{
+    background:var(--charcoal-950);
+    color:var(--cream);
+    font-family:var(--font-body);
+    font-weight:300;
+    overflow-x:hidden;
+    line-height:1.85;
+  }
+  ::selection{ background:var(--gold-soft); color:var(--charcoal-950); }
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-track{ background:var(--charcoal-900); }
+  ::-webkit-scrollbar-thumb{ background:var(--gold-deep); border-radius:4px; }
+  html{ scrollbar-color: var(--gold-deep) var(--charcoal-900); }
+
+  a{ color:var(--gold-bright); text-decoration:none; }
+  :focus-visible{ outline:2px solid var(--gold-bright); outline-offset:3px; border-radius:2px; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  }
+
+  /* ---------- Background layers ---------- */
+  #bg-canvas{
+    position:fixed; inset:0; width:100%; height:100%;
+    z-index:0; display:block; background:var(--charcoal-950);
+  }
+  #grain-overlay{
+    position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.05;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+  #vignette{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(ellipse at 50% 45%, transparent 35%, rgba(8,7,5,0.65) 100%);
+  }
+
+  main{ position:relative; z-index:2; }
+
+  /* ---------- Nav ---------- */
+  .topnav{
+    position:fixed; top:0; right:0; left:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 26px;
+    background:linear-gradient(to bottom, rgba(11,10,8,.55), transparent);
+  }
+  .brand-btn{
+    background:none; border:none; cursor:pointer; padding:0;
+    color:var(--gold-bright); font-family:var(--font-display); font-size:1.35rem; letter-spacing:.04em;
+  }
+  .nav-link{ font-size:.85rem; color:var(--cream-dim); border-bottom:1px solid transparent; }
+  .nav-link:hover{ color:var(--gold-bright); border-color:var(--gold-soft); }
+
+  /* ---------- Thread rail (signature element) ---------- */
+  #thread-rail{
+    position:fixed; right:auto; left:22px; top:0; bottom:0; width:2px; z-index:40;
+    display:flex; align-items:center;
+  }
+  .thread-track{ position:relative; width:2px; height:62vh; background:rgba(201,164,103,.18); border-radius:2px; }
+  .thread-fill{
+    position:absolute; right:0; left:0; bottom:0; top:0; width:100%; height:100%;
+    background:linear-gradient(to top, var(--gold-soft), var(--gold-bright));
+    transform:scaleY(0); transform-origin:bottom; border-radius:2px;
+  }
+  .bead{
+    position:absolute; right:-9px; left:auto; width:20px; height:20px; transform:translateY(-50%);
+    border-radius:50%; background:var(--charcoal-850); border:1px solid var(--gold-deep);
+    color:var(--cream-dim); font-size:.62rem; font-family:var(--font-body);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:background .3s, color .3s, border-color .3s, transform .3s;
+  }
+  .bead:hover{ border-color:var(--gold-bright); color:var(--gold-bright); }
+  .bead.active{ background:var(--gold-soft); border-color:var(--gold-bright); color:var(--charcoal-950); transform:translateY(-50%) scale(1.18); }
+
+  #progress-bar-mobile{ display:none; }
+
+  @media (max-width:760px){
+    #thread-rail{ display:none; }
+    #progress-bar-mobile{
+      display:block; position:fixed; top:0; right:0; left:0; height:3px; z-index:45;
+      background:rgba(201,164,103,.18);
+    }
+    #progress-fill-mobile{
+      height:100%; width:100%; transform:scaleX(0); transform-origin:right;
+      background:linear-gradient(to left, var(--gold-soft), var(--gold-bright));
+    }
+  }
+
+  /* ---------- Sound toggle ---------- */
+  #sound-toggle{
+    position:fixed; left:auto; right:24px; bottom:24px; z-index:50;
+    width:46px; height:46px; border-radius:50%;
+    background:rgba(21,19,15,.7); border:1px solid var(--gold-deep);
+    color:var(--gold-soft); cursor:pointer; display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(8px);
+    transition:border-color .3s, color .3s;
+  }
+  #sound-toggle:hover{ border-color:var(--gold-bright); color:var(--gold-bright); }
+  #sound-toggle svg{ width:20px; height:20px; }
+  #sound-toggle .icon-off{ display:block; }
+  #sound-toggle .icon-on{ display:none; }
+  #sound-toggle[aria-pressed="true"] .icon-off{ display:none; }
+  #sound-toggle[aria-pressed="true"] .icon-on{ display:block; }
+
+  /* ---------- Preloader ---------- */
+  #preloader{
+    position:fixed; inset:0; z-index:100; background:var(--charcoal-950);
+    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:22px; text-align:center;
+  }
+  .preloader-word{ font-family:var(--font-display); font-size:3.2rem; color:var(--gold-bright); margin:0; letter-spacing:.05em; }
+  .loader-bar{ width:220px; height:2px; background:rgba(201,164,103,.2); border-radius:2px; overflow:hidden; }
+  #loader-fill{ height:100%; width:0%; background:var(--gold-soft); transition:width .25s ease-out; }
+  #enter-btn{
+    margin-top:6px; padding:13px 30px; border-radius:2px;
+    background:transparent; border:1px solid var(--gold-soft); color:var(--gold-bright);
+    font-family:var(--font-body); font-size:.95rem; cursor:pointer; letter-spacing:.02em;
+    transition:background .3s, color .3s, transform .3s;
+  }
+  #enter-btn:disabled{ opacity:.35; cursor:default; }
+  #enter-btn:not(:disabled):hover{ background:var(--gold-soft); color:var(--charcoal-950); transform:translateY(-2px); }
+  .preloader-hint{ font-size:.78rem; color:var(--cream-dim); max-width:280px; }
+
+  /* ---------- 3D Persian text (signature typography) ---------- */
+  .text3d{ position:relative; display:inline-block; transform-style:preserve-3d; will-change:transform; }
+  .text3d .layer{ position:absolute; inset:0; white-space:nowrap; }
+  .text3d .layer.front{ position:relative; }
+  .text3d .layer{ color:hsl(38 26% calc(58% - var(--i) * 2.4%)); opacity:calc(1 - var(--i) * 0.015); }
+  .text3d .layer.front{ color:var(--gold-bright); opacity:1; text-shadow:0 3px 14px rgba(0,0,0,.5); }
+
+  h1.display, h2.display{ font-family:var(--font-display); font-weight:700; margin:0; line-height:1.3; }
+
+  /* ---------- Layout / panels ---------- */
+  .panel{ position:relative; min-height:100vh; display:flex; align-items:center; padding:0 7vw; }
+  .hero{ flex-direction:column; justify-content:center; text-align:center; gap:22px; perspective:700px; }
+  .hero-inner{ perspective:700px; }
+  .eyebrow{
+    display:inline-block; font-size:.78rem; letter-spacing:.18em; color:var(--gold-soft);
+    border-top:1px solid var(--gold-deep); border-bottom:1px solid var(--gold-deep);
+    padding:6px 0; margin-bottom:18px;
+  }
+  .hero h1{ font-size:clamp(2.4rem, 6vw, 4.6rem); }
+  .lead{ max-width:520px; margin:0 auto; color:var(--cream-dim); font-size:1.05rem; }
+  .scroll-cue{ margin-top:10px; font-size:.82rem; color:var(--cream-dim); display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .scroll-cue .arrow{ width:1px; height:30px; background:linear-gradient(to bottom, var(--gold-soft), transparent); animation:cueMove 2.4s ease-in-out infinite; }
+  @keyframes cueMove{ 0%,100%{ transform:translateY(0); opacity:.4;} 50%{ transform:translateY(8px); opacity:1;} }
+
+  .chapter{ min-height:140vh; align-items:center; }
+  .chapter-row{ display:flex; direction:ltr; width:100%; }
+  .chapter-row[data-align="right"]{ justify-content:flex-end; }
+  .chapter-row[data-align="left"]{ justify-content:flex-start; }
+
+  .chapter-card{
+    direction:rtl; text-align:right; position:relative;
+    max-width:440px; width:100%; padding:34px 32px;
+    background:rgba(11,10,8,.58); backdrop-filter:blur(14px);
+    border:1px solid rgba(201,164,103,.22); perspective:700px;
+  }
+  .chapter-card::before, .chapter-card::after{
+    content:''; position:absolute; width:22px; height:22px; pointer-events:none; border-color:var(--gold-soft);
+  }
+  .chapter-card::before{ top:-1px; right:-1px; border-top:1px solid; border-right:1px solid; }
+  .chapter-card::after{ bottom:-1px; left:-1px; border-bottom:1px solid; border-left:1px solid; }
+
+  .chapter-card h2{ font-size:clamp(1.5rem, 3vw, 2.1rem); margin-bottom:16px; }
+  .chapter-card p{ color:var(--cream-dim); font-size:.97rem; margin:0 0 24px; }
+
+  .cta-row{ display:flex; flex-wrap:wrap; gap:12px; }
+  .btn{
+    display:inline-flex; align-items:center; gap:6px; padding:11px 22px; font-size:.85rem;
+    font-family:var(--font-body); cursor:pointer; border-radius:2px; transition:all .3s;
+  }
+  .btn-gold{ background:var(--gold-soft); color:var(--charcoal-950); border:1px solid var(--gold-soft); }
+  .btn-gold:hover{ background:var(--gold-bright); transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; color:var(--gold-bright); border:1px solid var(--gold-deep); }
+  .btn-ghost:hover{ border-color:var(--gold-bright); transform:translateY(-2px); }
+
+  .finale{ flex-direction:column; text-align:center; gap:26px; min-height:120vh; justify-content:center; }
+  .finale-inner{ max-width:640px; perspective:700px; }
+  .finale p{ color:var(--cream-dim); max-width:520px; margin:0 auto; }
+  .btn-lg{ padding:15px 34px; font-size:.95rem; margin-top:6px; }
+
+  .tutorials{ margin-top:46px; }
+  .tutorial-links{ display:flex; flex-wrap:wrap; gap:14px 26px; justify-content:center; margin-top:16px; }
+  .tutorial-links a{ font-size:.85rem; color:var(--cream-dim); border-bottom:1px solid rgba(201,164,103,.3); padding-bottom:3px; }
+  .tutorial-links a:hover{ color:var(--gold-bright); border-color:var(--gold-bright); }
+
+  .site-footer{
+    position:relative; padding:36px 7vw 60px; text-align:center; color:var(--cream-dim); font-size:.8rem;
+    border-top:1px solid rgba(201,164,103,.15);
+  }
+  .social-row{ display:flex; gap:18px; justify-content:center; margin-top:14px; }
+  .social-row a{ color:var(--cream-dim); }
+  .social-row a:hover{ color:var(--gold-bright); }
+
+  .reveal{ }
+
+  @media (max-width:760px){
+    .panel{ padding:0 6vw; }
+    .chapter-row{ justify-content:center !important; }
+    .chapter-card{ max-width:100%; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+<div id="grain-overlay" aria-hidden="true"></div>
+<div id="vignette" aria-hidden="true"></div>
+
+<!-- Preloader / audio-unlock gesture -->
+<div id="preloader" role="dialog" aria-label="بارگذاری تجربه فرزین">
+  <p class="preloader-word">فرزین</p>
+  <div class="loader-bar"><div id="loader-fill"></div></div>
+  <button id="enter-btn" type="button" disabled>ورود به دنیای فرزین</button>
+  <p class="preloader-hint">تجربه‌ی فرزین با صداست؛ اگر دوست داری، صدای دستگاهت را کمی باز کن.</p>
+</div>
+
+<div id="thread-rail" aria-hidden="true">
+  <div class="thread-track">
+    <div class="thread-fill" id="thread-fill"></div>
+    <button class="bead" type="button" style="top:16.67%" aria-label="فصل ۱ گردنبند">۱</button>
+    <button class="bead" type="button" style="top:33.33%" aria-label="فصل ۲ گوشواره">۲</button>
+    <button class="bead" type="button" style="top:50%" aria-label="فصل ۳ دستبند">۳</button>
+    <button class="bead" type="button" style="top:66.67%" aria-label="فصل ۴ انگشتر">۴</button>
+    <button class="bead" type="button" style="top:83.33%" aria-label="فصل ۵ ساعت">۵</button>
+  </div>
+</div>
+
+<div id="progress-bar-mobile"><div id="progress-fill-mobile"></div></div>
+
+<button id="sound-toggle" type="button" aria-pressed="false" aria-label="روشن یا خاموش کردن صدا">
+  <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9v6h4l5 4V5L8 9H4z"/><line x1="17" y1="8" x2="22" y2="13"/><line x1="22" y1="8" x2="17" y2="13"/></svg>
+  <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 010 7"/><path d="M19 6a8 8 0 010 12"/></svg>
+</button>
+
+<main>
+  <header class="topnav">
+    <button class="brand-btn" id="brand-home" type="button">فرزین</button>
+    <a class="nav-link" href="#store">فروشگاه ↗</a>
+  </header>
+
+  <section id="hero" class="panel hero">
+    <div class="hero-inner reveal">
+      <span class="eyebrow">فرزین</span>
+      <h1 class="display text3d-auto" data-depth="13">هر قطعه، یک قصه‌ست</h1>
+      <p class="lead">فرزین اکسسوری می‌سازد؛ نه فقط برای زینت، که برای روایت. هر گردنبند، گوشواره یا انگشتر، بخشی از قصه‌ای‌ست که تو می‌نویسی.</p>
+      <div class="scroll-cue"><span>برای آغاز داستان، اسکرول کن</span><span class="arrow"></span></div>
+    </div>
+  </header>
+  </section>
+
+  <section id="chapter-1" class="panel chapter" data-chapter="0">
+    <div class="chapter-row" data-align="right">
+      <div class="chapter-card reveal">
+        <span class="eyebrow">فصل ۱ — گردنبند</span>
+        <h2 class="display text3d-auto" data-depth="8">نزدیک‌ترین زینت به قلب</h2>
+        <p>گردنبند فرزین روی پوست می‌نشیند و با هر نفس، کمی گرم‌تر می‌شود. زنجیری باریک، آویزی ساده، و وزنی که حس می‌شود اما اذیت نمی‌کند؛ طلایی که قرار نیست خودنمایی کند، فقط قرار است همراه باشد.</p>
+        <div class="cta-row">
+          <a href="#store-necklace" class="btn btn-gold">مشاهده در فروشگاه ↗</a>
+          <a href="#tutorial-necklace" class="btn btn-ghost">آموزش نگهداری ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="chapter-2" class="panel chapter" data-chapter="1">
+    <div class="chapter-row" data-align="left">
+      <div class="chapter-card reveal">
+        <span class="eyebrow">فصل ۲ — گوشواره</span>
+        <h2 class="display text3d-auto" data-depth="8">حرکتی که با تو می‌رقصد</h2>
+        <p>گوشواره‌های فرزین آن‌قدر سبک‌اند که یک روز کامل را فراموش می‌کنی به گوشت هستند. با هر چرخش سر، نوری کوچک از طلا روی صورتت می‌افتد؛ یادآوری ساده که زیبایی، لازم نیست سنگین باشد.</p>
+        <div class="cta-row">
+          <a href="#store-earrings" class="btn btn-gold">مشاهده در فروشگاه ↗</a>
+          <a href="#tutorial-earrings" class="btn btn-ghost">آموزش انتخاب گوشواره ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="chapter-3" class="panel chapter" data-chapter="2">
+    <div class="chapter-row" data-align="right">
+      <div class="chapter-card reveal">
+        <span class="eyebrow">فصل ۳ — دستبند</span>
+        <h2 class="display text3d-auto" data-depth="8">نشانه‌ای روی دست‌هایی که کار می‌کنند</h2>
+        <p>دستبند فرزین برای دست‌هایی ساخته شده که کم نمی‌نشینند؛ روی فرمان، پشت میز کار، روی صفحه‌کلید. حلقه‌ای از طلای نرم که با مچ خم می‌شود؛ یادآور اینکه زینت هم می‌تواند با زندگی روزمره راه بیاید.</p>
+        <div class="cta-row">
+          <a href="#store-bracelet" class="btn btn-gold">مشاهده در فروشگاه ↗</a>
+          <a href="#tutorial-bracelet" class="btn btn-ghost">آموزش اندازه‌گیری مچ ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="chapter-4" class="panel chapter" data-chapter="3">
+    <div class="chapter-row" data-align="left">
+      <div class="chapter-card reveal">
+        <span class="eyebrow">فصل ۴ — انگشتر</span>
+        <h2 class="display text3d-auto" data-depth="8">کوچک‌ترین قطعه، بزرگ‌ترین قول</h2>
+        <p>انگشتر فرزین جایی می‌نشیند که دستت بیشتر از هر جای دیگر دیده می‌شود؛ وقتی فنجان قهوه را برمی‌داری، وقتی دستت را می‌گیرند. نگین آن نه برای چشم دیگران، که برای لحظه‌ای‌ست که خودت به آن نگاه می‌کنی.</p>
+        <div class="cta-row">
+          <a href="#store-ring" class="btn btn-gold">مشاهده در فروشگاه ↗</a>
+          <a href="#tutorial-ring" class="btn btn-ghost">آموزش انتخاب سایز ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="chapter-5" class="panel chapter" data-chapter="4">
+    <div class="chapter-row" data-align="right">
+      <div class="chapter-card reveal">
+        <span class="eyebrow">فصل ۵ — ساعت</span>
+        <h2 class="display text3d-auto" data-depth="8">زمان، با کمی طلا</h2>
+        <p>ساعت فرزین یادت می‌آورد که وقت، چیزی‌ست که باید با احترام نگه داشت، نه با عجله. بدنه‌ای مات، عددهایی ساده، و بندی که دور مچ می‌پیچد بدون آن‌که وزنش را حس کنی.</p>
+        <div class="cta-row">
+          <a href="#store-watch" class="btn btn-gold">مشاهده در فروشگاه ↗</a>
+          <a href="#tutorial-watch" class="btn btn-ghost">آموزش تنظیم و نگهداری ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="finale" class="panel finale">
+    <div class="finale-inner reveal">
+      <h2 class="display text3d-auto" data-depth="10">داستان فرزین همین‌جا تمام نمی‌شود</h2>
+      <p>این پنج فصل، فقط شروع مجموعه‌ی فرزین بودند. باقی قصه را خودت ادامه می‌دهی؛ با قطعه‌ای که انتخاب می‌کنی و روزی که آن را برای اولین‌بار می‌پوشی.</p>
+      <a href="#store" class="btn btn-gold btn-lg">ورود به فروشگاه فرزین ↗</a>
+
+      <div class="tutorials">
+        <span class="eyebrow">آموزش‌ها</span>
+        <div class="tutorial-links">
+          <a href="#tutorial-gold-care">نگهداری از طلا و نقره ↗</a>
+          <a href="#tutorial-styling">ست کردن اکسسوری با لباس ↗</a>
+          <a href="#tutorial-authenticity">تشخیص اصالت سنگ و فلز ↗</a>
+          <a href="#tutorial-sizing">راهنمای انتخاب سایز ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <p>© فرزین. تمام حقوق محفوظ است.</p>
+    <div class="social-row">
+      <a href="#instagram">اینستاگرام ↗</a>
+      <a href="#telegram">تلگرام ↗</a>
+    </div>
+  </footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+
+<script>
+(function(){
+  'use strict';
+  if(window.gsap && window.ScrollTrigger){ gsap.registerPlugin(ScrollTrigger); }
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ================= 3D Persian text extrusion ================= */
+  var text3dEls = [];
+  function build3DText(){
+    document.querySelectorAll('.text3d-auto').forEach(function(el){
+      var txt = el.textContent.trim();
+      el.textContent = '';
+      el.classList.add('text3d');
+      var depth = parseInt(el.getAttribute('data-depth') || '10', 10);
+      for(var i = depth; i >= 0; i--){
+        var span = document.createElement('span');
+        span.className = 'layer' + (i === 0 ? ' front' : '');
+        span.style.setProperty('--i', i);
+        span.textContent = txt;
+        el.appendChild(span);
+      }
+      text3dEls.push(el);
+    });
+  }
+
+  /* ================= synthesized sound (Howler) ================= */
+  function bufferToWav(buffer){
+    var numCh = buffer.numberOfChannels, len = buffer.length * numCh * 2 + 44;
+    var ab = new ArrayBuffer(len), view = new DataView(ab);
+    function ws(o, s){ for(var i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); }
+    ws(0,'RIFF'); view.setUint32(4, len - 8, true); ws(8,'WAVE');
+    ws(12,'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+    view.setUint16(22, numCh, true); view.setUint32(24, buffer.sampleRate, true);
+    view.setUint32(28, buffer.sampleRate * numCh * 2, true); view.setUint16(32, numCh * 2, true); view.setUint16(34, 16, true);
+    ws(36,'data'); view.setUint32(40, len - 44, true);
+    var p = 44;
+    for(var i = 0; i < buffer.length; i++){
+      for(var ch = 0; ch < numCh; ch++){
+        var s = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
+        view.setInt16(p, s < 0 ? s * 0x8000 : s * 0x7FFF, true); p += 2;
+      }
+    }
+    return new Blob([ab], {type:'audio/wav'});
+  }
+
+  function synthChime(freqs, dur){
+    var Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    var ctx = new Ctx(1, Math.ceil(44100 * dur), 44100);
+    freqs.forEach(function(f, idx){
+      var o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      var g = ctx.createGain();
+      var start = idx * 0.05;
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.linearRampToValueAtTime(0.5 / freqs.length, start + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0008, start + dur - 0.1);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(start); o.stop(start + dur);
+    });
+    return ctx.startRendering().then(bufferToWav).then(function(b){ return URL.createObjectURL(b); });
+  }
+
+  function synthAmbient(dur){
+    var Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    var ctx = new Ctx(2, Math.ceil(44100 * dur), 44100);
+    [110, 164.8].forEach(function(f, i){
+      var o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+      var lfo = ctx.createOscillator(); lfo.frequency.value = 0.08 + i * 0.02;
+      var lfoGain = ctx.createGain(); lfoGain.gain.value = 0.04;
+      lfo.connect(lfoGain);
+      var g = ctx.createGain(); g.gain.value = 0.05;
+      lfoGain.connect(g.gain);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(0); lfo.start(0);
+    });
+    return ctx.startRendering().then(bufferToWav).then(function(b){ return URL.createObjectURL(b); });
+  }
+
+  var soundOn = false, ambientHowl = null, chimeHowls = {};
+  function initAudio(){
+    synthAmbient(8).then(function(url){
+      ambientHowl = new Howl({src:[url], format:['wav'], loop:true, volume:0});
+    });
+    var scale = [523.25, 587.33, 659.25, 698.46, 783.99];
+    chapterData.forEach(function(c, i){
+      synthChime([scale[i], scale[i] * 1.5], 1.1).then(function(url){
+        chimeHowls['ch' + i] = new Howl({src:[url], format:['wav'], volume:0.5});
+      });
+    });
+    synthChime([659.25, 987.77], 0.8).then(function(url){
+      chimeHowls.ui = new Howl({src:[url], format:['wav'], volume:0.5});
+    });
+  }
+  function setSoundOn(on){
+    soundOn = on;
+    if(ambientHowl){
+      if(on){ if(!ambientHowl.playing()) ambientHowl.play(); ambientHowl.fade(ambientHowl.volume(), 0.22, 600); }
+      else { var v = ambientHowl.volume(); ambientHowl.fade(v, 0, 300); setTimeout(function(){ ambientHowl.pause(); }, 320); }
+    }
+    document.getElementById('sound-toggle').setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  function playChime(key){ if(!soundOn) return; var h = chimeHowls[key]; if(h) h.play(); }
+
+  /* ================= Three.js scene ================= */
+  var renderer, scene, camera, emblemGroup, chapterGroups = [], particles, glowTex;
+  var waypoints = [];
+  var chapterData = [
+    {key:'necklace', x: 2.6, y: 0.15, z: -9,  hue:0xE8C77E},
+    {key:'earrings', x:-2.8, y: 0.30, z:-18,  hue:0xE3B0A0},
+    {key:'bracelet', x: 2.4, y:-0.20, z:-27,  hue:0xD9A954},
+    {key:'ring',     x:-2.5, y: 0.10, z:-36,  hue:0xEAD9B5},
+    {key:'watch',    x: 2.6, y:-0.10, z:-45,  hue:0xB79C7A}
+  ];
+
+  function goldMat(){ return new THREE.MeshStandardMaterial({color:0xC9A467, metalness:0.92, roughness:0.3}); }
+  function charcoalMat(){ return new THREE.MeshStandardMaterial({color:0x1d1812, metalness:0.4, roughness:0.55}); }
+  function gemMat(hue){ return new THREE.MeshPhysicalMaterial({color:hue, metalness:0.05, roughness:0.12, clearcoat:1, clearcoatRoughness:0.1, emissive:hue, emissiveIntensity:0.1}); }
+
+  function makeGlowTexture(){
+    var c = document.createElement('canvas'); c.width = 128; c.height = 128;
+    var ctx = c.getContext('2d');
+    var g = ctx.createRadialGradient(64,64,0,64,64,64);
+    g.addColorStop(0,'rgba(255,236,200,0.9)');
+    g.addColorStop(0.4,'rgba(255,221,160,0.35)');
+    g.addColorStop(1,'rgba(255,221,160,0)');
+    ctx.fillStyle = g; ctx.fillRect(0,0,128,128);
+    return new THREE.CanvasTexture(c);
+  }
+  function addSparkle(parent){
+    if(!glowTex) glowTex = makeGlowTexture();
+    var mat = new THREE.SpriteMaterial({map:glowTex, color:0xffffff, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false});
+    var s = new THREE.Sprite(mat);
+    s.scale.set(0.4,0.4,1);
+    parent.add(s);
+    return s;
+  }
+
+  function buildEnvironment(){
+    var pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    var c = document.createElement('canvas'); c.width = 32; c.height = 256;
+    var ctx = c.getContext('2d');
+    var grad = ctx.createLinearGradient(0,0,0,256);
+    grad.addColorStop(0,'#3c2f1a'); grad.addColorStop(0.45,'#1c160d'); grad.addColorStop(1,'#080705');
+    ctx.fillStyle = grad; ctx.fillRect(0,0,32,256);
+    for(var i=0;i<3;i++){
+      var gx = (i+0.5)*(32/3);
+      var rg = ctx.createRadialGradient(gx,90,2,gx,90,40);
+      rg.addColorStop(0,'rgba(232,199,124,0.5)'); rg.addColorStop(1,'rgba(232,199,124,0)');
+      ctx.fillStyle = rg; ctx.fillRect(0,0,32,256);
+    }
+    var tex = new THREE.CanvasTexture(c);
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    var rt = pmrem.fromEquirectangular(tex);
+    scene.environment = rt.texture;
+    tex.dispose(); pmrem.dispose();
+  }
+
+  function buildLights(){
+    scene.add(new THREE.AmbientLight(0x352a1a, 0.5));
+    var key = new THREE.DirectionalLight(0xE8C77E, 1.1); key.position.set(4,6,6); scene.add(key);
+    var rim = new THREE.DirectionalLight(0x3a4250, 0.35); rim.position.set(-6,2,-4); scene.add(rim);
+  }
+
+  function buildEmblem(){
+    var g = new THREE.Group();
+    g.add(new THREE.Mesh(new THREE.TorusGeometry(0.55,0.05,24,64), goldMat()));
+    var gem = new THREE.Mesh(new THREE.IcosahedronGeometry(0.22,0), gemMat(0xEAD9B5));
+    g.add(gem);
+    addSparkle(gem);
+    g.position.set(0,0,0);
+    scene.add(g);
+    return g;
+  }
+
+  function buildChapterObject(c){
+    var g = new THREE.Group();
+    g.position.set(c.x, c.y, c.z);
+    g.userData.sway = Math.random()*Math.PI*2;
+
+    if(c.key === 'necklace'){
+      var linkGeo = new THREE.TorusGeometry(0.07,0.022,8,16);
+      var count = 36;
+      var inst = new THREE.InstancedMesh(linkGeo, goldMat(), count);
+      var dummy = new THREE.Object3D();
+      for(var i=0;i<count;i++){
+        var t = i/(count-1);
+        var xx = (t-0.5)*1.8;
+        var yy = -Math.pow(Math.abs(t-0.5)*2,1.4)*1.0+0.5;
+        dummy.position.set(xx,yy,0);
+        dummy.rotation.set(0,0,t*Math.PI*2);
+        dummy.updateMatrix();
+        inst.setMatrixAt(i, dummy.matrix);
+      }
+      g.add(inst);
+      var bail = new THREE.Mesh(new THREE.TorusGeometry(0.09,0.025,8,16), goldMat());
+      bail.position.set(0,-0.45,0); g.add(bail);
+      var gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.22,0), gemMat(c.hue));
+      gem.position.set(0,-0.7,0); g.add(gem);
+      addSparkle(gem);
+    }
+    else if(c.key === 'earrings'){
+      [-0.55, 0.55].forEach(function(side, i){
+        var sub = new THREE.Group(); sub.position.x = side;
+        var hook = new THREE.Mesh(new THREE.TorusGeometry(0.12,0.02,8,24,Math.PI*1.4), goldMat());
+        hook.rotation.z = Math.PI/2; hook.position.y = 0.3; sub.add(hook);
+        var drop = new THREE.Mesh(new THREE.SphereGeometry(0.16,24,24), gemMat(c.hue));
+        drop.scale.set(0.8,1.3,0.8); drop.position.y = -0.05; sub.add(drop);
+        addSparkle(drop);
+        g.add(sub);
+        g.userData['ear'+i] = sub;
+      });
+    }
+    else if(c.key === 'bracelet'){
+      var band = new THREE.Mesh(new THREE.TorusKnotGeometry(0.75,0.13,150,12,1,1), goldMat());
+      band.rotation.x = Math.PI/2.2; g.add(band);
+    }
+    else if(c.key === 'ring'){
+      var rband = new THREE.Mesh(new THREE.TorusGeometry(0.55,0.11,20,48), goldMat());
+      rband.rotation.x = Math.PI/2; g.add(rband);
+      var rgem = new THREE.Mesh(new THREE.IcosahedronGeometry(0.26,0), gemMat(c.hue));
+      rgem.position.y = 0.58; g.add(rgem);
+      addSparkle(rgem);
+      for(var p=0;p<4;p++){
+        var prong = new THREE.Mesh(new THREE.ConeGeometry(0.045,0.16,8), goldMat());
+        var ang = p/4*Math.PI*2;
+        prong.position.set(Math.cos(ang)*0.2, 0.5, Math.sin(ang)*0.2);
+        prong.rotation.x = Math.PI;
+        g.add(prong);
+      }
+    }
+    else if(c.key === 'watch'){
+      var caseMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.16,48), goldMat());
+      caseMesh.rotation.x = Math.PI/2; g.add(caseMesh);
+      g.add(new THREE.Mesh(new THREE.TorusGeometry(0.5,0.045,16,48), goldMat()));
+      var face = new THREE.Mesh(new THREE.CircleGeometry(0.42,48), charcoalMat());
+      face.position.z = 0.081; g.add(face);
+      var hourHand = new THREE.Mesh(new THREE.BoxGeometry(0.04,0.22,0.02), goldMat());
+      hourHand.position.set(0,0.08,0.09); hourHand.rotation.z = -0.6; g.add(hourHand);
+      var minHand = new THREE.Mesh(new THREE.BoxGeometry(0.03,0.32,0.02), goldMat());
+      minHand.position.set(0,0.12,0.095); minHand.rotation.z = 1.3; g.add(minHand);
+      var curve1 = new THREE.QuadraticBezierCurve3(new THREE.Vector3(0,0.5,0), new THREE.Vector3(0,1,0.1), new THREE.Vector3(0,1.5,0));
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(curve1,16,0.16,8,false), charcoalMat()));
+      var curve2 = new THREE.QuadraticBezierCurve3(new THREE.Vector3(0,-0.5,0), new THREE.Vector3(0,-1,0.1), new THREE.Vector3(0,-1.5,0));
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(curve2,16,0.16,8,false), charcoalMat()));
+    }
+
+    scene.add(g);
+    return g;
+  }
+
+  function buildParticles(){
+    var count = 260;
+    var positions = new Float32Array(count*3);
+    for(var i=0;i<count;i++){
+      positions[i*3]   = (Math.random()-0.5)*30;
+      positions[i*3+1] = (Math.random()-0.5)*12;
+      positions[i*3+2] = -Math.random()*60+8;
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+    var mat = new THREE.PointsMaterial({color:0xC9A467, size:0.045, transparent:true, opacity:0.4, blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true});
+    particles = new THREE.Points(geo, mat);
+    scene.add(particles);
+  }
+
+  function buildWaypoints(){
+    waypoints.push({cam:{x:0,y:0.6,z:6}, look:{x:0,y:0,z:0}});
+    chapterData.forEach(function(c){
+      waypoints.push({
+        cam:{x:-c.x*0.5, y:c.y+0.75, z:c.z+6.4},
+        look:{x:c.x, y:c.y, z:c.z}
+      });
+    });
+    waypoints.push({cam:{x:0,y:4.4,z:-51}, look:{x:0,y:-0.4,z:-29}});
+  }
+
+  function onResize(){
+    var w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w,h);
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+  }
+
+  function initThree(){
+    var canvas = document.getElementById('bg-canvas');
+    renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, powerPreference:'high-performance'});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+
+    scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0b0a08, 0.045);
+
+    camera = new THREE.PerspectiveCamera(42, window.innerWidth/window.innerHeight, 0.1, 200);
+    camera.position.set(0,0.6,6);
+
+    buildEnvironment();
+    buildLights();
+    emblemGroup = buildEmblem();
+    chapterData.forEach(function(c){ chapterGroups.push(buildChapterObject(c)); });
+    buildParticles();
+    buildWaypoints();
+
+    window.addEventListener('resize', onResize);
+    onResize();
+  }
+
+  /* ================= animation loop ================= */
+  var smoothProgress = 0, targetProgress = 0, introT = 0;
+  var pointer = {x:0,y:0}, pointerSmooth = {x:0,y:0};
+  var clock;
+
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function smoothstep(t){ return t*t*(3-2*t); }
+
+  function updateCamera(p){
+    var segCount = waypoints.length - 1;
+    var segPos = p * segCount;
+    var i = Math.floor(segPos);
+    if(i >= segCount) i = segCount - 1;
+    if(i < 0) i = 0;
+    var t = segPos - i;
+    t = smoothstep(Math.max(0, Math.min(1,t)));
+    var a = waypoints[i], b = waypoints[i+1];
+    var extra = (1 - introT) * 9;
+    camera.position.set(
+      lerp(a.cam.x,b.cam.x,t) + pointerSmooth.x*0.4,
+      lerp(a.cam.y,b.cam.y,t) + pointerSmooth.y*0.25,
+      lerp(a.cam.z,b.cam.z,t) + extra
+    );
+    camera.lookAt(lerp(a.look.x,b.look.x,t), lerp(a.look.y,b.look.y,t), lerp(a.look.z,b.look.z,t));
+    camera.rotation.z += pointerSmooth.x*0.02;
+  }
+
+  function updateText3DTilt(){
+    if(reduceMotion) return;
+    var rx = -pointerSmooth.y*6, ry = pointerSmooth.x*8;
+    for(var i=0;i<text3dEls.length;i++){
+      text3dEls[i].style.transform = 'rotateX(' + rx + 'deg) rotateY(' + ry + 'deg)';
+    }
+  }
+
+  function animate(){
+    requestAnimationFrame(animate);
+    var dt = clock.getDelta();
+    var time = clock.elapsedTime;
+
+    smoothProgress += (targetProgress - smoothProgress) * (reduceMotion ? 0.5 : 0.07);
+    pointerSmooth.x += (pointer.x - pointerSmooth.x) * 0.05;
+    pointerSmooth.y += (pointer.y - pointerSmooth.y) * 0.05;
+
+    updateCamera(smoothProgress);
+    updateText3DTilt();
+
+    if(emblemGroup) emblemGroup.rotation.y += dt*0.25;
+    var segCount = waypoints.length - 1;
+    chapterGroups.forEach(function(g, i){
+      g.rotation.y += dt*0.18;
+      g.position.y = chapterData[i].y + Math.sin(time*0.5 + g.userData.sway)*0.05;
+      if(g.userData.ear0) g.userData.ear0.rotation.z = Math.sin(time*0.8)*0.12;
+      if(g.userData.ear1) g.userData.ear1.rotation.z = Math.sin(time*0.8+Math.PI)*0.12;
+      var focus = Math.max(0, 1 - Math.abs(smoothProgress*segCount - (i+1)));
+      g.scale.setScalar(1 + focus*0.08);
+    });
+
+    if(particles && !reduceMotion) particles.rotation.y += dt*0.01;
+
+    renderer.render(scene, camera);
+  }
+
+  /* ================= scroll story ================= */
+  function setActiveBead(i){
+    document.querySelectorAll('.bead').forEach(function(b, idx){ b.classList.toggle('active', idx === i); });
+  }
+
+  function initScrollStory(){
+    ScrollTrigger.create({
+      trigger: document.body, start:'top top', end:'bottom bottom',
+      onUpdate: function(self){
+        targetProgress = self.progress;
+        var pct = self.progress*100;
+        document.getElementById('thread-fill').style.transform = 'scaleY(' + self.progress + ')';
+        var pfm = document.getElementById('progress-fill-mobile');
+        if(pfm) pfm.style.transform = 'scaleX(' + self.progress + ')';
+      }
+    });
+
+    document.querySelectorAll('.reveal').forEach(function(el){
+      gsap.fromTo(el, {opacity:0, y:36, filter:'blur(6px)'}, {
+        opacity:1, y:0, filter:'blur(0px)', duration:1, ease:'power2.out',
+        scrollTrigger:{trigger:el, start:'top 78%', toggleActions:'play none none reverse'}
+      });
+    });
+
+    document.querySelectorAll('.chapter').forEach(function(sec, i){
+      ScrollTrigger.create({
+        trigger: sec, start:'top center', end:'bottom center',
+        onEnter: function(){
+          setActiveBead(i);
+          if(!sec.dataset.played){ sec.dataset.played = '1'; playChime('ch'+i); }
+        },
+        onEnterBack: function(){ setActiveBead(i); }
+      });
+    });
+  }
+
+  /* ================= UI wiring ================= */
+  function initUI(){
+    var preloader = document.getElementById('preloader');
+    var enterBtn = document.getElementById('enter-btn');
+    var fill = document.getElementById('loader-fill');
+    var pct = 0;
+    var iv = setInterval(function(){
+      pct += Math.random()*14;
+      if(pct >= 100){ pct = 100; clearInterval(iv); enterBtn.disabled = false; }
+      fill.style.width = pct + '%';
+    }, 180);
+
+    enterBtn.addEventListener('click', function(){
+      setSoundOn(true);
+      playChime('ui');
+      gsap.to(preloader, {opacity:0, duration:0.8, ease:'power2.out', onComplete:function(){ preloader.style.display = 'none'; }});
+      var proxy = {t:0};
+      gsap.to(proxy, {t:1, duration:2.2, ease:'power3.out', onUpdate:function(){ introT = proxy.t; }});
+    });
+
+    var soundBtn = document.getElementById('sound-toggle');
+    soundBtn.addEventListener('click', function(){
+      setSoundOn(soundBtn.getAttribute('aria-pressed') !== 'true');
+    });
+
+    document.querySelectorAll('.bead').forEach(function(b, i){
+      b.addEventListener('click', function(){
+        playChime('ui');
+        document.querySelectorAll('.chapter')[i].scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block:'center'});
+      });
+    });
+
+    document.getElementById('brand-home').addEventListener('click', function(){
+      window.scrollTo({top:0, behavior: reduceMotion ? 'auto' : 'smooth'});
+    });
+
+    /* Force every real link to open in a new tab — tutorials included */
+    document.querySelectorAll('a[href]').forEach(function(a){
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.addEventListener('click', function(){ playChime('ui'); });
+    });
+    document.querySelectorAll('.btn').forEach(function(b){
+      if(b.tagName !== 'A') b.addEventListener('click', function(){ playChime('ui'); });
+    });
+  }
+
+  /* ================= boot ================= */
+  document.addEventListener('DOMContentLoaded', function(){
+    build3DText();
+    initThree();
+    initAudio();
+    initScrollStory();
+    initUI();
+    clock = new THREE.Clock();
+    animate();
+  });
+
+  window.addEventListener('pointermove', function(e){
+    pointer.x = (e.clientX/window.innerWidth - 0.5)*2;
+    pointer.y = (e.clientY/window.innerHeight - 0.5)*2;
+  });
+})();
+</script>
+</body>
+</html>
