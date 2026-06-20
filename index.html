@@ -299,13 +299,13 @@
 
   /* ===== CART OVERLAY ===== */
   #cart-overlay{
-    position:fixed; inset:0; z-index:200; display:flex; direction:rtl;
-    pointer-events:none; 
+    position:fixed; inset:0; z-index:200; display:none; direction:rtl;
   }
-  #cart-overlay.open{ pointer-events:all; }
+  #cart-overlay.open{ display:flex; pointer-events:all; }
   #cart-backdrop{
     position:absolute; inset:0; background:rgba(8,7,5,.65); opacity:0;
     transition:opacity .4s; backdrop-filter:blur(4px);
+    z-index:1;
   }
   #cart-overlay.open #cart-backdrop{ opacity:1; }
 
@@ -313,8 +313,10 @@
     position:relative; width:min(420px, 100vw); height:100%;
     background:var(--charcoal-900); border-left:1px solid rgba(201,164,103,.2);
     display:flex; flex-direction:column;
-    transform:translateX(-100%); transition:transform .45s cubic-bezier(.25,.46,.45,.94);
-    box-shadow: 4px 0 40px rgba(0,0,0,.6);
+    transform:translateX(100%); transition:transform .45s cubic-bezier(.25,.46,.45,.94);
+    box-shadow:-4px 0 40px rgba(0,0,0,.6);
+    margin-right:auto;
+    z-index:2;
   }
   #cart-overlay.open #cart-panel{ transform:translateX(0); }
 
